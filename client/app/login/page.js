@@ -30,7 +30,7 @@ export default function Login() {
         localStorage.setItem('user', JSON.stringify(data.user));
 
         toast.success('Login successful!');
-        router.push('/');
+        window.location.href = '/';
       } else {
         toast.error(data.error || 'Invalid email or password');
       }
