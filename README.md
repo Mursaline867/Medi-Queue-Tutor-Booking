@@ -1,6 +1,6 @@
 # MediQueue - Tutor Booking System
 
-**Live Site:** https://your-vercel-url.vercel.app (Update after deployment)
+**Live Site:** https://medi-queue-tutor-booking.vercel.app/
 
 A modern full-stack tutor booking platform built with Next.js (Client) and Express.js (Server) with MongoDB. Students can easily find, compare, and book trusted tutors online.
 
