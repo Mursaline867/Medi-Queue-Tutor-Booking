@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import Link from 'next/link';
 
 export default function TutorDetail({ params }) {
   const [tutor, setTutor] = useState(null);
@@ -17,10 +17,20 @@ export default function TutorDetail({ params }) {
 
   useEffect(() => {
     const fetchTutor = async () => {
+      if (!params?.id) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors/${params.id}`);
         const data = await res.json();
-        setTutor(data.tutor);
+        
+        if (data.tutor) {
+          setTutor(data.tutor);
+        } else {
+          toast.error('Tutor not found');
+        }
       } catch (error) {
         toast.error('Failed to load tutor');
       } finally {
@@ -29,21 +39,19 @@ export default function TutorDetail({ params }) {
     };
 
     fetchTutor();
-  }, [params.id]);
+  }, [params?.id]);
 
   const handleBookClick = () => {
     if (!tutor) return;
 
-    // Check if slots available
     if (tutor.totalSlot <= 0) {
       toast.error("This session is fully booked. You can't join at the moment.");
       return;
     }
 
-    // Check session date
     const today = new Date();
     const sessionDate = new Date(tutor.sessionStartDate);
-    
+
     if (today < sessionDate) {
       toast.error("Booking is not available yet for this tutor.");
       return;
@@ -86,7 +94,11 @@ export default function TutorDetail({ params }) {
   };
 
   if (loading) {
-    return <div className="page-shell py-20 text-center">Loading...</div>;
+    return (
+      <div className="page-shell py-20 text-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+      </div>
+    );
   }
 
   if (!tutor) {
@@ -105,7 +117,6 @@ export default function TutorDetail({ params }) {
   return (
     <div className="page-shell section-pad max-w-4xl">
       <div className="grid md:grid-cols-2 gap-10">
-        {/* Tutor Info */}
         <div>
           <img src={tutor.photo} alt={tutor.tutorName} className="w-full rounded-3xl shadow-xl" />
         </div>
