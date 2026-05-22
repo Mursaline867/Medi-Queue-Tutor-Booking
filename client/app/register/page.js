@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,6 +15,14 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      router.push('/');
+    }
+  }, [status, session, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,20 +44,21 @@ export default function Register() {
       const data = await res.json();
 
       if (res.ok) {
-        // Store token in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userId', data.user.id);
-
         toast.success('Account created! Logging you in...');
         
         // Auto-login with credentials
-        await signIn('credentials', {
+        const signInResult = await signIn('credentials', {
           email,
           password,
-          token: data.token,
-          redirect: true,
-          callbackUrl: '/',
+          redirect: false,
         });
+
+        if (signInResult?.ok) {
+          router.push('/');
+        } else {
+          toast.error('Registration successful but login failed. Please login manually.');
+          router.push('/login');
+        }
       } else {
         toast.error(data.error || 'Registration failed');
       }
@@ -62,13 +71,16 @@ export default function Register() {
   const handleGoogleSignUp = async () => {
     setGoogleLoading(true);
     try {
-      await signIn('google', { callbackUrl: '/', redirectTo: '/' });
+      await signIn('google', { callbackUrl: '/' });
     } catch (err) {
       toast.error('Google sign up failed');
-    } finally {
       setGoogleLoading(false);
     }
   };
+
+  if (status === 'loading') {
+    return <div className="page-shell py-20 text-center text-muted">Loading...</div>;
+  }
 
   return (
     <div className="page-shell flex min-h-[calc(100vh-80px)] items-center justify-center py-12">

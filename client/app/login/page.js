@@ -1,39 +1,41 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { LogIn } from 'lucide-react';
 
 export default function Login() {
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      router.push('/');
+    }
+  }, [status, session, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       });
 
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        // Save user info in localStorage
-        localStorage.setItem('userId', data.user.id);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-
+      if (result?.ok) {
         toast.success('Login successful!');
         router.push('/');
       } else {
-        toast.error(data.error || 'Invalid email or password');
+        toast.error(result?.error || 'Invalid email or password');
       }
     } catch (error) {
       toast.error('Login failed. Please try again.');
@@ -41,6 +43,10 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  if (status === 'loading') {
+    return <div className="page-shell py-20 text-center text-muted">Loading...</div>;
+  }
 
   return (
     <div className="page-shell flex min-h-[calc(100vh-80px)] items-center justify-center py-12">
