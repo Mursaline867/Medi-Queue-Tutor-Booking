@@ -33,7 +33,7 @@ export default function TutorsPage() {
         <div>
           <span className="badge mb-3">Tutor directory</span>
           <h1 className="text-4xl font-black tracking-tight sm:text-5xl">All Tutors</h1>
-          <p className="mt-3 max-w-2xl text-muted">Search by tutor name and compare the best fit for your schedule.</p>
+          <p className="mt-3 max-w-2xl text-muted">Find the perfect tutor for your needs.</p>
         </div>
         
         <div className="relative w-full lg:w-96">
@@ -57,7 +57,7 @@ export default function TutorsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {tutors.map((tutor) => (
-            <article key={tutor._id} className="surface card-hover overflow-hidden rounded-3xl">
+            <div key={tutor._id} className="surface card-hover overflow-hidden rounded-3xl">
               <div className="relative h-56">
                 <Image src={tutor.photo} alt={tutor.tutorName} fill className="object-cover" unoptimized />
                 <div className="absolute bottom-4 left-4 rounded-full bg-slate-950/82 px-3 py-1 text-sm font-bold text-white backdrop-blur">
@@ -78,14 +78,14 @@ export default function TutorsPage() {
 
                 <div className="my-5 space-y-2 text-sm text-muted">
                   <p className="flex items-center gap-2"><Clock size={16} /> {tutor.availableDays} | {tutor.timeSlot}</p>
-                  <p className="flex items-center gap-2"><MapPin size={16} /> {tutor.location || 'Flexible location'}</p>
+                  <p className="flex items-center gap-2"><MapPin size={16} /> {tutor.location}</p>
                 </div>
 
                 <Link href={`/tutors/${tutor._id}`} className="btn-primary w-full">
-                  View & Book
+                  Book Session
                 </Link>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       )}
