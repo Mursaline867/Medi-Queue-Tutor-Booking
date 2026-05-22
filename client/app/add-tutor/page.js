@@ -1,12 +1,10 @@
 'use client';
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { PlusCircle } from 'lucide-react';
 
 export default function AddTutor() {
-  const { data: session } = useSession();
   const router = useRouter();
   const [form, setForm] = useState({
     tutorName: '', photo: '', subject: '', availableDays: '', timeSlot: '',
@@ -47,8 +45,6 @@ export default function AddTutor() {
     setLoading(false);
   };
 
-  if (!session) return <div className="page-shell py-20 text-center text-muted">Please login first.</div>;
-
   return (
     <div className="page-shell section-pad max-w-4xl">
       <div className="mb-8">
@@ -58,7 +54,6 @@ export default function AddTutor() {
       </div>
 
       <form onSubmit={handleSubmit} className="panel space-y-6 p-6 sm:p-10">
-        {/* সব input field আগের মতোই থাকবে */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <label className="label">Tutor Name</label>
