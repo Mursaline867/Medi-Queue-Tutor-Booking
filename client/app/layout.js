@@ -1,6 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -28,12 +27,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${theme} ${inter.className}`}>
       <body className="min-h-screen">
-        <SessionProvider>
-          <Navbar toggleTheme={toggleTheme} theme={theme} />
-          <main className="pt-20">{children}</main>
-          <Footer />
-          <Toaster position="top-center" />
-        </SessionProvider>
+        <Navbar toggleTheme={toggleTheme} theme={theme} />
+        <main className="pt-20">{children}</main>
+        <Footer />
+        <Toaster position="top-center" />
       </body>
     </html>
   );
