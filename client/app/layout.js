@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
