@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors({
-  origin: '*',                    // সব জায়গা থেকে অনুমতি দেয়
+  origin: '*',                 
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -22,6 +22,9 @@ app.use('/api/my-tutors', require('./routes/my-tutors'));
 app.use('/api/my-bookings', require('./routes/my-bookings'));
 app.use('/api/register', require('./routes/register'));
 app.use('/api/login', require('./routes/login'));
+app.use('/api/oauth-login', require('./routes/oauth-login'));
+app.use('/api/verify-token', require('./routes/verify-token'));
+app.use('/api/auth', require('./routes/auth-status'));
 
 app.get('/', (req, res) => res.send('🚀 MediQueue Server Running!'));
 

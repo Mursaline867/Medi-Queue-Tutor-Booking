@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import Image from 'next/image';
 import { UserPlus } from 'lucide-react';
 
 export default function Register() {
@@ -11,6 +13,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [photo, setPhoto] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -23,21 +26,48 @@ export default function Register() {
 
     setLoading(true);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ name, email, password, photo }),
-});
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, photo }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (res.ok) {
-      toast.success('Account created! Please login.');
-      router.push('/login');
-    } else {
-      toast.error(data.error || 'Something went wrong');
+      if (res.ok) {
+        // Store token in localStorage
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.user.id);
+
+        toast.success('Account created! Logging you in...');
+        
+        // Auto-login with credentials
+        await signIn('credentials', {
+          email,
+          password,
+          token: data.token,
+          redirect: true,
+          callbackUrl: '/',
+        });
+      } else {
+        toast.error(data.error || 'Registration failed');
+      }
+    } catch (err) {
+      toast.error('Registration error: ' + err.message);
     }
     setLoading(false);
+  };
+
+  const handleGoogleSignUp = async () => {
+    setGoogleLoading(true);
+    try {
+      await signIn('google', { callbackUrl: '/', redirectTo: '/' });
+    } catch (err) {
+      toast.error('Google sign up failed');
+    } finally {
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -73,6 +103,17 @@ export default function Register() {
             {loading ? 'Creating Account...' : 'Register'}
           </button>
         </form>
+
+        <div className="my-6 flex items-center">
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+          <span className="px-4 text-sm text-muted">OR</span>
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
+        </div>
+
+        <button onClick={handleGoogleSignUp} disabled={googleLoading} type="button" className="btn-secondary w-full py-4">
+          <Image src="https://www.google.com/favicon.ico" alt="Google logo" width={20} height={20} unoptimized />
+          {googleLoading ? 'Signing up with Google...' : 'Sign up with Google'}
+        </button>
 
         <p className="text-center mt-8 text-sm text-muted">
           Already have an account?{' '}
