@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Clock, MapPin, Search, SlidersHorizontal } from 'lucide-react';
+import { Clock, MapPin, Search } from 'lucide-react';
 
 export default function TutorsPage() {
   const [tutors, setTutors] = useState([]);
@@ -18,14 +18,7 @@ export default function TutorsPage() {
   };
 
   useEffect(() => {
-    const loadTutors = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors?search=`);
-      const data = await res.json();
-      setTutors(data.tutors || []);
-      setLoading(false);
-    };
-
-    loadTutors();
+    fetchTutors();
   }, []);
 
   const handleSearch = (e) => {
@@ -38,11 +31,12 @@ export default function TutorsPage() {
     <div className="page-shell section-pad">
       <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <span className="badge mb-3"><SlidersHorizontal size={14} /> Tutor directory</span>
+          <span className="badge mb-3">Tutor directory</span>
           <h1 className="text-4xl font-black tracking-tight sm:text-5xl">All Tutors</h1>
           <p className="mt-3 max-w-2xl text-muted">Search by tutor name and compare the best fit for your schedule.</p>
         </div>
-        <label className="relative w-full lg:w-96">
+        
+        <div className="relative w-full lg:w-96">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
           <input
             type="text"
@@ -51,7 +45,7 @@ export default function TutorsPage() {
             onChange={handleSearch}
             className="field pl-12"
           />
-        </label>
+        </div>
       </div>
 
       {loading ? (
@@ -65,13 +59,7 @@ export default function TutorsPage() {
           {tutors.map((tutor) => (
             <article key={tutor._id} className="surface card-hover overflow-hidden rounded-3xl">
               <div className="relative h-56">
-                <Image
-                  src={tutor.photo}
-                  alt={tutor.tutorName}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
+                <Image src={tutor.photo} alt={tutor.tutorName} fill className="object-cover" unoptimized />
                 <div className="absolute bottom-4 left-4 rounded-full bg-slate-950/82 px-3 py-1 text-sm font-bold text-white backdrop-blur">
                   {tutor.totalSlot} slots left
                 </div>

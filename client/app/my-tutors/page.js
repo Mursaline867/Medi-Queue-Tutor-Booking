@@ -1,103 +1,111 @@
 'use client';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { Trash2, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export default function MyTutors() {
-  const { data: session } = useSession();
   const [tutors, setTutors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMyTutors = async () => {
-    if (!session?.user?.id) return;
+  const fetchTutors = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/my-tutors?userId=${session.user.id}`
-    );
-    const data = await res.json();
-    setTutors(data.tutors || []);
-    setLoading(false);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/my-tutors?userId=${userId}`);
+      const data = await res.json();
+      setTutors(data.tutors || []);
+    } catch (error) {
+      console.error('Failed to fetch tutors');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (session?.user?.id) {
-      fetchMyTutors();
-    }
-  }, [session]);
+    fetchTutors();
+  }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this tutor?')) return;
-    
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors/${id}`, {
-      method: 'DELETE',
-    });
-    
-    toast.success('Tutor deleted');
-    fetchMyTutors();
+  const handleDelete = async (tutorId) => {
+    if (!confirm('Are you sure you want to delete this tutor?')) return;
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors/${tutorId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success('Tutor deleted successfully!');
+        fetchTutors();
+      } else {
+        toast.error('Failed to delete tutor');
+      }
+    } catch (error) {
+      toast.error('Something went wrong');
+    }
   };
 
-  if (loading) return <div className="page-shell py-20 text-center text-muted">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="page-shell py-20 text-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-shell section-pad">
-      <div className="mb-10">
-        <span className="badge mb-3"><Users size={14} /> Tutor management</span>
-        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">My Tutors</h1>
+      <div className="mb-10 flex items-center justify-between">
+        <div>
+          <span className="badge mb-3"><Users size={14} /> My Tutors</span>
+          <h1 className="text-4xl font-black tracking-tight sm:text-5xl">My Tutors</h1>
+          <p className="mt-3 text-muted">Manage the tutors you have added.</p>
+        </div>
+        <Link href="/add-tutor" className="btn-primary">Add New Tutor</Link>
       </div>
 
       {tutors.length === 0 ? (
         <div className="panel p-12 text-center">
-          <p className="text-xl font-bold">You haven&apos;t added any tutors yet.</p>
-          <p className="mt-2 text-muted">Add a tutor profile to start receiving bookings.</p>
+          <p className="text-muted">You haven't added any tutors yet.</p>
+          <Link href="/add-tutor" className="btn-primary mt-6 inline-block">Add Your First Tutor</Link>
         </div>
       ) : (
-        <div className="panel table-wrap overflow-hidden">
-          <table className="data-table">
-            <thead className="surface-strong">
-              <tr>
-                <th>Tutor</th>
-                <th>Subject</th>
-                <th>Fee</th>
-                <th>Slots Left</th>
-                <th className="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tutors.map((tutor) => (
-                <tr key={tutor._id}>
-                  <td>
-                    <div className="flex items-center gap-4">
-                      <Image 
-                        src={tutor.photo} 
-                        alt={tutor.tutorName} 
-                        width={56} 
-                        height={56} 
-                        className="h-14 w-14 rounded-2xl object-cover" 
-                        unoptimized 
-                      />
-                      <div>
-                        <div className="font-bold">{tutor.tutorName}</div>
-                        <div className="text-sm text-muted">{tutor.location}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{tutor.subject}</td>
-                  <td className="font-black">BDT {tutor.hourlyFee}</td>
-                  <td><span className="badge">{tutor.totalSlot} left</span></td>
-                  <td className="text-center">
-                    <button 
-                      onClick={() => handleDelete(tutor._id)} 
-                      className="inline-flex items-center gap-2 font-bold text-rose-600 hover:text-rose-700"
-                    >
-                      <Trash2 size={16} /> Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {tutors.map((tutor) => (
+            <div key={tutor._id} className="panel overflow-hidden">
+              <div className="relative h-48">
+                <img src={tutor.photo} alt={tutor.tutorName} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-6">
+                <h3 className="font-bold text-xl">{tutor.tutorName}</h3>
+                <p className="text-primary font-semibold">{tutor.subject}</p>
+                
+                <div className="mt-4 space-y-2 text-sm text-muted">
+                  <p>Fee: BDT {tutor.hourlyFee}/hr</p>
+                  <p>Slots Left: {tutor.totalSlot}</p>
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <Link 
+                    href={`/tutors/${tutor._id}`} 
+                    className="btn-secondary flex-1 text-center"
+                  >
+                    View
+                  </Link>
+                  <button 
+                    onClick={() => handleDelete(tutor._id)}
+                    className="btn-secondary flex-1 text-rose-600 hover:bg-rose-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
