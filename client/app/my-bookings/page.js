@@ -1,95 +1,104 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { CalendarCheck, XCircle } from 'lucide-react';
+import { CalendarX } from 'lucide-react';
 
 export default function MyBookings() {
-  const { data: session } = useSession();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBookings = async () => {
-    if (!session?.user?.id) return;
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/my-bookings?userId=${session.user.id}`
-    );
-    const data = await res.json();
-    setBookings(data.bookings || []);
-    setLoading(false);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/my-bookings?userId=${userId}`);
+      const data = await res.json();
+      setBookings(data.bookings || []);
+    } catch (error) {
+      console.error('Failed to fetch bookings');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (session?.user?.id) {
-      fetchBookings();
-    }
-  }, [session]);
-
-  const cancelBooking = async (id) => {
-    if (!confirm('Cancel this booking?')) return;
-    
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${id}`, {
-      method: 'PATCH',
-    });
-    
-    toast.success('Booking cancelled');
     fetchBookings();
+  }, []);
+
+  const handleCancel = async (bookingId) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}`, {
+        method: 'PATCH',
+      });
+
+      if (res.ok) {
+        toast.success('Booking cancelled successfully!');
+        fetchBookings();
+      } else {
+        toast.error('Failed to cancel booking');
+      }
+    } catch (error) {
+      toast.error('Something went wrong');
+    }
   };
 
-  if (loading) return <div className="page-shell py-20 text-center text-muted">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="page-shell py-20 text-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-shell section-pad">
       <div className="mb-10">
-        <span className="badge mb-3"><CalendarCheck size={14} /> Session history</span>
-        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">My Booked Sessions</h1>
+        <span className="badge mb-3"><CalendarX size={14} /> My Bookings</span>
+        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">My Bookings</h1>
+        <p className="mt-3 text-muted">Manage your scheduled sessions.</p>
       </div>
 
       {bookings.length === 0 ? (
         <div className="panel p-12 text-center">
-          <p className="text-xl font-bold">No bookings yet.</p>
-          <p className="mt-2 text-muted">Book a tutor session and it will appear here.</p>
+          <p className="text-muted">You don't have any bookings yet.</p>
+          <Link href="/tutors" className="btn-primary mt-6 inline-block">Browse Tutors</Link>
         </div>
       ) : (
-        <div className="panel table-wrap overflow-hidden">
-          <table className="data-table">
-            <thead className="surface-strong">
-              <tr>
-                <th>Tutor</th>
-                <th>Student</th>
-                <th>Status</th>
-                <th className="text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((b) => (
-                <tr key={b._id}>
-                  <td className="font-bold">{b.tutor?.tutorName || 'N/A'}</td>
-                  <td>{b.studentName}</td>
-                  <td>
-                    <span className={`inline-flex rounded-full px-3 py-1 text-sm font-bold ${
-                      b.status === 'booked' 
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' 
-                        : 'bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300'
-                    }`}>
-                      {b.status}
-                    </span>
-                  </td>
-                  <td className="text-center">
-                    {b.status === 'booked' && (
-                      <button 
-                        onClick={() => cancelBooking(b._id)} 
-                        className="inline-flex items-center gap-2 font-bold text-rose-600 hover:text-rose-700"
-                      >
-                        <XCircle size={16} /> Cancel
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="space-y-4">
+          {bookings.map((booking) => (
+            <div key={booking._id} className="panel p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-bold text-xl">{booking.tutor?.tutorName}</h3>
+                <p className="text-muted">{booking.tutor?.subject}</p>
+                <p className="text-sm mt-1">Student: {booking.studentName} | Phone: {booking.phone}</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-sm text-muted">Status</div>
+                  <div className={`font-semibold ${booking.status === 'cancelled' ? 'text-rose-500' : 'text-emerald-500'}`}>
+                    {booking.status}
+                  </div>
+                </div>
+
+                {booking.status !== 'cancelled' && (
+                  <button 
+                    onClick={() => handleCancel(booking._id)}
+                    className="btn-secondary text-sm px-4 py-2 text-rose-600 hover:bg-rose-50"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
