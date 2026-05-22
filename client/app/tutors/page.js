@@ -19,7 +19,7 @@ export default function TutorsPage() {
 
   useEffect(() => {
     const loadTutors = async () => {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors?search=`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors?search=`);
       const data = await res.json();
       setTutors(data.tutors || []);
       setLoading(false);

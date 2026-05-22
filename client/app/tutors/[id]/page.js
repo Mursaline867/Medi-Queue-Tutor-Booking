@@ -2,15 +2,17 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { Award, CalendarDays, Clock, GraduationCap, MapPin, Monitor, Phone, UserRound } from 'lucide-react';
+import { Award, CalendarDays, Clock, GraduationCap, MapPin, Monitor, Phone, UserRound, Mail } from 'lucide-react';
 
 export default function TutorDetails() {
   const { id } = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [booking, setBooking] = useState({ studentName: '', phone: '' });
+  const [booking, setBooking] = useState({ studentName: '', phone: '', studentEmail: '' });
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -23,12 +25,24 @@ export default function TutorDetails() {
 
   const handleBook = async (e) => {
     e.preventDefault();
+    
+    if (!session?.user?.id) {
+      toast.error('Please login first');
+      return;
+    }
+
     setSubmitting(true);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors/${id}/book`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(booking),
+      body: JSON.stringify({
+        tutorId: id,
+        studentName: booking.studentName,
+        phone: booking.phone,
+        studentEmail: booking.studentEmail,
+        bookedBy: session.user.id
+      }),
     });
     const data = await res.json();
 
@@ -85,6 +99,19 @@ export default function TutorDetails() {
                 <input
                   value={booking.studentName}
                   onChange={(e) => setBooking({ ...booking, studentName: e.target.value })}
+                  className="field pl-12"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="label">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
+                <input
+                  type="email"
+                  value={booking.studentEmail}
+                  onChange={(e) => setBooking({ ...booking, studentEmail: e.target.value })}
                   className="field pl-12"
                   required
                 />
