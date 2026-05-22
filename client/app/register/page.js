@@ -1,10 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import Image from 'next/image';
 import { UserPlus } from 'lucide-react';
 
 export default function Register() {
@@ -13,16 +11,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [photo, setPhoto] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
-      router.push('/');
-    }
-  }, [status, session, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,53 +23,22 @@ export default function Register() {
 
     setLoading(true);
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, photo }),
-      });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, photo }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        toast.success('Account created! Logging you in...');
-        
-        // Auto-login with credentials
-        const signInResult = await signIn('credentials', {
-          email,
-          password,
-          redirect: false,
-        });
-
-        if (signInResult?.ok) {
-          router.push('/');
-        } else {
-          toast.error('Registration successful but login failed. Please login manually.');
-          router.push('/login');
-        }
-      } else {
-        toast.error(data.error || 'Registration failed');
-      }
-    } catch (err) {
-      toast.error('Registration error: ' + err.message);
+    if (res.ok) {
+      toast.success('Account created! Please login.');
+      router.push('/login');
+    } else {
+      toast.error(data.error || 'Something went wrong');
     }
     setLoading(false);
   };
-
-  const handleGoogleSignUp = async () => {
-    setGoogleLoading(true);
-    try {
-      await signIn('google', { callbackUrl: '/' });
-    } catch (err) {
-      toast.error('Google sign up failed');
-      setGoogleLoading(false);
-    }
-  };
-
-  if (status === 'loading') {
-    return <div className="page-shell py-20 text-center text-muted">Loading...</div>;
-  }
 
   return (
     <div className="page-shell flex min-h-[calc(100vh-80px)] items-center justify-center py-12">
@@ -115,17 +73,6 @@ export default function Register() {
             {loading ? 'Creating Account...' : 'Register'}
           </button>
         </form>
-
-        <div className="my-6 flex items-center">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
-          <span className="px-4 text-sm text-muted">OR</span>
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
-        </div>
-
-        <button onClick={handleGoogleSignUp} disabled={googleLoading} type="button" className="btn-secondary w-full py-4">
-          <Image src="https://www.google.com/favicon.ico" alt="Google logo" width={20} height={20} unoptimized />
-          {googleLoading ? 'Signing up with Google...' : 'Sign up with Google'}
-        </button>
 
         <p className="text-center mt-8 text-sm text-muted">
           Already have an account?{' '}
