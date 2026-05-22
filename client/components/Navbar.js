@@ -7,17 +7,30 @@ import { LogOut, Moon, PlusCircle, Sun } from 'lucide-react';
 export default function Navbar({ toggleTheme, theme }) {
   const [user, setUser] = useState(null);
 
+  // Check login status on every render
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    const checkUser = () => {
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      } else {
+        setUser(null);
+      }
+    };
+
+    checkUser();
+    
+    // Listen for storage changes (when login happens)
+    window.addEventListener('storage', checkUser);
+    
+    return () => window.removeEventListener('storage', checkUser);
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setUser(null);
     window.location.href = '/';
   };
 
