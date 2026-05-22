@@ -4,8 +4,9 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+const clientUrl = process.env.CLIENT_URL || '*';
 app.use(cors({
-  origin: '*',                 
+  origin: clientUrl,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
