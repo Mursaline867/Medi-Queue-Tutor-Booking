@@ -1,7 +1,5 @@
 'use client';
-import Image from 'next/image';
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -11,58 +9,36 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (res?.error) {
-      toast.error(res.error || 'Invalid email or password');
-    } else {
-      // ✅ Save userId in localStorage after successful login
-      const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      
-      const userData = await userRes.json();
-      
-      if (userData.success) {
-        localStorage.setItem('userId', userData.user.id);
-        localStorage.setItem('token', userData.token);
-      }
-      
-      toast.success('Login successful!');
-      router.push('/');
-    }
-    setLoading(false);
-  };
 
-  const handleGoogleSignIn = async () => {
-    setGoogleLoading(true);
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google-status`);
       const data = await res.json();
 
-      if (!data.configured) {
-        toast.error('Google OAuth credentials are missing');
-        return;
-      }
+      if (res.ok && data.success) {
+        // Save user info in localStorage
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
 
-      await signIn('google', { callbackUrl: '/', redirectTo: '/' });
-    } catch {
-      toast.error('Google login setup check failed');
+        toast.success('Login successful!');
+        router.push('/');
+      } else {
+        toast.error(data.error || 'Invalid email or password');
+      }
+    } catch (error) {
+      toast.error('Login failed. Please try again.');
     } finally {
-      setGoogleLoading(false);
+      setLoading(false);
     }
   };
 
@@ -88,17 +64,6 @@ export default function Login() {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-
-        <div className="my-6 flex items-center">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
-          <span className="px-4 text-sm text-muted">OR</span>
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800"></div>
-        </div>
-
-        <button onClick={handleGoogleSignIn} disabled={googleLoading} className="btn-secondary w-full py-4">
-          <Image src="https://www.google.com/favicon.ico" alt="Google logo" width={20} height={20} unoptimized />
-          {googleLoading ? 'Checking Google setup...' : 'Continue with Google'}
-        </button>
 
         <p className="mt-8 text-center text-sm text-muted">
           Don&apos;t have an account? <Link href="/register" className="font-bold text-primary">Register here</Link>

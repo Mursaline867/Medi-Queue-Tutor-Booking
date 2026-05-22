@@ -24,15 +24,17 @@ export default function AddTutor() {
     setLoading(true);
 
     const userId = localStorage.getItem('userId');
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors/${id}/book`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...booking,
-      bookedBy: userId,  
-      studentEmail: session?.user?.email
-    }),
-  });
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...form,
+        hourlyFee: Number(form.hourlyFee),
+        totalSlot: Number(form.totalSlot),
+        createdBy: userId
+      }),
+    });
 
     const data = await res.json();
 
@@ -56,6 +58,7 @@ export default function AddTutor() {
       </div>
 
       <form onSubmit={handleSubmit} className="panel space-y-6 p-6 sm:p-10">
+        {/* সব input field আগের মতোই থাকবে */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <label className="label">Tutor Name</label>
