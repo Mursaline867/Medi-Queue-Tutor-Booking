@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
@@ -11,7 +12,6 @@ export default function TutorDetail({ params }) {
   const [bookingLoading, setBookingLoading] = useState(false);
   const router = useRouter();
 
-  // Fetch tutor data
   useEffect(() => {
     const fetchTutor = async () => {
       try {
@@ -30,7 +30,9 @@ export default function TutorDetail({ params }) {
       }
     };
 
-    fetchTutor();
+    if (params.id) {
+      fetchTutor();
+    }
   }, [params.id]);
 
   const handleBook = async (e) => {
