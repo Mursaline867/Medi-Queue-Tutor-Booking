@@ -4,9 +4,13 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { LogOut, Moon, PlusCircle, Sun, User } from 'lucide-react';
 
-export default function Navbar({ toggleTheme, theme }) {
+export default function Navbar() {
   const [user, setUser] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    return localStorage.getItem('theme') || 'light';
+  });
 
   useEffect(() => {
     const checkUser = () => {
@@ -22,6 +26,11 @@ export default function Navbar({ toggleTheme, theme }) {
     window.addEventListener('storage', checkUser);
     return () => window.removeEventListener('storage', checkUser);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -58,7 +67,7 @@ export default function Navbar({ toggleTheme, theme }) {
           )}
 
           <button
-            onClick={toggleTheme}
+            onClick={() => setTheme(prev => (prev === 'light' ? 'dark' : 'light'))}
             className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
