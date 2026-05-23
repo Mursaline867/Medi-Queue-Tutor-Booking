@@ -39,4 +39,4 @@ const verifyToken = async (req, res, next) => {
   return res.status(401).json({ error: 'Invalid token or session expired' });
 };
 
-module.exports = { verifyToken };
+module.exports = { verifyToken };

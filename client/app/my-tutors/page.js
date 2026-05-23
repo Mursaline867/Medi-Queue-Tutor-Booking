@@ -151,11 +151,11 @@ export default function MyTutors() {
           <table className="w-full">
             <thead className="bg-slate-100 dark:bg-slate-800">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold">Tutor Name</th>
-                <th className="text-left py-4 px-6 font-semibold">Subject</th>
-                <th className="text-left py-4 px-6 font-semibold">Fee</th>
-                <th className="text-left py-4 px-6 font-semibold">Slots</th>
-                <th className="text-right py-4 px-6 font-semibold">Actions</th>
+                <th className="text-left py-4 px-6 font-semibold text-white">Tutor Name</th>
+                <th className="text-left py-4 px-6 font-semibold text-white">Subject</th>
+                <th className="text-left py-4 px-6 font-semibold text-white">Fee</th>
+                <th className="text-left py-4 px-6 font-semibold text-white">Slots</th>
+                <th className="text-right py-4 px-6 font-semibold text-white">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -194,58 +194,58 @@ export default function MyTutors() {
           <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-8">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold">Edit Tutor</h3>
+                <h3 className="text-2xl font-bold text-white">Edit Tutor</h3>
                 <button onClick={() => setShowEditModal(false)}><X size={24} /></button>
               </div>
 
               <form onSubmit={handleUpdate} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="label">Tutor Name</label>
+                    <label className="label text-white">Tutor Name</label>
                     <input name="tutorName" value={editForm.tutorName} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Photo URL</label>
+                    <label className="label text-white">Photo URL</label>
                     <input name="photo" value={editForm.photo} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Subject</label>
+                    <label className="label text-white">Subject</label>
                     <input name="subject" value={editForm.subject} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Hourly Fee (BDT)</label>
+                    <label className="label text-white">Hourly Fee (BDT)</label>
                     <input type="number" name="hourlyFee" value={editForm.hourlyFee} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Available Days</label>
+                    <label className="label text-white">Available Days</label>
                     <input name="availableDays" value={editForm.availableDays} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Time Slot</label>
+                    <label className="label text-white">Time Slot</label>
                     <input name="timeSlot" value={editForm.timeSlot} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Total Slots</label>
+                    <label className="label text-white">Total Slots</label>
                     <input type="number" name="totalSlot" value={editForm.totalSlot} onChange={handleEditChange} className="field" />
                   </div>
                   <div>
-                    <label className="label">Session Start Date</label>
+                    <label className="label text-white">Session Start Date</label>
                     <input type="date" name="sessionStartDate" value={editForm.sessionStartDate} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Institution</label>
+                    <label className="label text-white">Institution</label>
                     <input name="institution" value={editForm.institution} onChange={handleEditChange} className="field" />
                   </div>
                   <div>
-                    <label className="label">Experience</label>
+                    <label className="label text-white">Experience</label>
                     <input name="experience" value={editForm.experience} onChange={handleEditChange} className="field" />
                   </div>
                   <div>
-                    <label className="label">Location</label>
+                    <label className="label text-white">Location</label>
                     <input name="location" value={editForm.location} onChange={handleEditChange} className="field" required />
                   </div>
                   <div>
-                    <label className="label">Teaching Mode</label>
+                    <label className="label text-white">Teaching Mode</label>
                     <select name="teachingMode" value={editForm.teachingMode} onChange={handleEditChange} className="field">
                       <option>Online</option>
                       <option>Offline</option>

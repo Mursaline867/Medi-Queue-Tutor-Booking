@@ -181,11 +181,11 @@ export default function TutorDetail({ params }) {
       {showBookingModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-8">
-            <h2 className="text-3xl font-bold mb-6">Book Session</h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">Book Session</h2>
 
             <form onSubmit={handleBooking} className="space-y-6">
               <div>
-                <label className="label">Student Name</label>
+                <label className="label text-white">Student Name</label>
                 <input 
                   type="text" 
                   value={studentName} 
@@ -196,7 +196,7 @@ export default function TutorDetail({ params }) {
               </div>
 
               <div>
-                <label className="label">Phone Number</label>
+                <label className="label text-white">Phone Number</label>
                 <input 
                   type="tel" 
                   value={phone} 
@@ -208,7 +208,7 @@ export default function TutorDetail({ params }) {
 
               <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl">
                 <p className="text-sm text-muted">Tutor</p>
-                <p className="font-semibold">{tutor.tutorName}</p>
+                <p className="font-semibold text-white">{tutor.tutorName}</p>
               </div>
 
               <div className="flex gap-4 pt-4">

@@ -8,5 +8,5 @@ const bookingSchema = new mongoose.Schema({
   status: { type: String, default: 'booked' },
   bookedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
-
+ 
 module.exports = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
