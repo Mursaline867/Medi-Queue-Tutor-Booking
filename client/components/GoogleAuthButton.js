@@ -185,11 +185,23 @@ export default function GoogleAuthButton({
     }, [googleClientId, handleCredentialResponse]);
 
     const handleClick = () => {
-        console.log('GoogleAuthButton clicked, google loaded=', !!window.google?.accounts?.id);
-        if (!window.google?.accounts?.id) {
-            console.error('Google accounts not ready when button clicked');
+        const hasSDK = !!window.google?.accounts?.id;
+        console.log('GoogleAuthButton clicked:', {
+            hasSDK,
+            googleClientIdExists: !!googleClientId,
+            googleClientIdValue: googleClientId,
+        });
+
+        if (!googleClientId) {
+            console.error('Google Client ID (NEXT_PUBLIC_GOOGLE_CLIENT_ID) is missing.');
+            toast.error('Google Client ID is missing. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID in your environment.');
+            return;
+        }
+
+        if (!hasSDK) {
+            console.error('Google accounts SDK not loaded when button clicked.');
             toast.error(
-                'Google authentication is not ready yet'
+                'Google script could not be loaded. Please disable your ad-blocker or Brave Shield and refresh.'
             );
             return;
         }
