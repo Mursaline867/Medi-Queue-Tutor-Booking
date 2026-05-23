@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -14,16 +14,17 @@ export default function TutorDetail({ params }) {
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const router = useRouter();
-  const tutorId = params?.id;
+  const resolvedParams = React.use(params);
+  const tutorId = resolvedParams?.id;
   const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
-    if (!tutorId) {
-      setError("Invalid Tutor ID");
-      setLoading(false);
-      return;
-    }
+    // if (!tutorId) {
+    //   setError("Invalid Tutor ID");
+    //   setLoading(false);
+    //   return;
+    // }
 
     const fetchTutor = async () => {
       try {

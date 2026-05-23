@@ -86,7 +86,7 @@ export default function MyBookings() {
       ) : (
         <div className="panel overflow-hidden">
           <table className="w-full">
-            <thead className="bg-slate-100 dark:bg-slate-800">
+            <thead className="bg-slate-100 text-white dark:bg-slate-800">
               <tr>
                 <th className="text-left py-4 px-6 font-semibold">Tutor Name</th>
                 <th className="text-left py-4 px-6 font-semibold">Student Name</th>

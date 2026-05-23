@@ -15,7 +15,11 @@ app.use(cors({
 app.use(express.json());
 
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
+  .then(async () => {
+    console.log('✅ MongoDB Connected');
+    const initBetterAuth = require('./betterAuth');
+    await initBetterAuth(app);
+  })
   .catch(err => console.log('MongoDB Error:', err));
 
 // Routes
@@ -25,7 +29,6 @@ app.use('/api/my-tutors', require('./routes/my-tutors'));
 app.use('/api/my-bookings', require('./routes/my-bookings'));
 app.use('/api/register', require('./routes/register'));
 app.use('/api/login', require('./routes/login'));
-app.use('/api/auth', require('./routes/oauth-login'));
 
 app.get('/', (req, res) => res.send('🚀 MediQueue Server Running!'));
 
