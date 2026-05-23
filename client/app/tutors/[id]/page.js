@@ -14,36 +14,43 @@ export default function TutorDetail({ params }) {
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const router = useRouter();
+  const tutorId = params?.id;
   const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
-    const fetchTutor = async () => {
-      if (!params?.id) {
-        setError("Invalid Tutor ID");
-        setLoading(false);
-        return;
-      }
+    if (!tutorId) {
+      setError("Invalid Tutor ID");
+      setLoading(false);
+      return;
+    }
 
+    const fetchTutor = async () => {
       try {
-        const res = await fetch(`${apiBase}/api/tutors/${params.id}`);
-        const data = await res.json();
+        const res = await fetch(`${apiBase}/api/tutors/${tutorId}`);
 
         if (!res.ok) {
-          throw new Error(data.error || 'Tutor not found');
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `Tutor with ID ${tutorId} not found`);
         }
 
-        setTutor(data.tutor);
+        const data = await res.json();
+        if (data.tutor) {
+          setTutor(data.tutor);
+        } else {
+          throw new Error('Tutor data not available');
+        }
       } catch (err) {
+        console.error('Fetch error:', err);
         setError(err.message);
-        toast.error(err.message);
+        toast.error(err.message || 'Failed to load tutor details');
       } finally {
         setLoading(false);
       }
     };
 
     fetchTutor();
-  }, [params?.id]);
+  }, [tutorId, apiBase]);
 
   const handleBookClick = () => {
     if (!tutor) return;
@@ -66,6 +73,11 @@ export default function TutorDetail({ params }) {
 
   const handleBooking = async (e) => {
     e.preventDefault();
+    if (!studentName || !phone) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
     setBookingLoading(true);
 
     try {
@@ -73,7 +85,7 @@ export default function TutorDetail({ params }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tutorId: params.id,
+          tutorId: tutorId,
           studentName,
           phone,
           studentEmail: user.email || '',
@@ -84,14 +96,14 @@ export default function TutorDetail({ params }) {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success('Booking successful!');
+        toast.success('Booking successful! 🎉');
         setShowBookingModal(false);
         router.push('/my-bookings');
       } else {
         toast.error(data.error || 'Booking failed');
       }
     } catch (error) {
-      toast.error('Something went wrong');
+      toast.error('Something went wrong. Please try again.');
     } finally {
       setBookingLoading(false);
     }
@@ -111,9 +123,11 @@ export default function TutorDetail({ params }) {
   if (error || !tutor) {
     return (
       <div className="page-shell py-20 text-center">
-        <h1 className="text-4xl font-black text-rose-600">Tutor Not Found</h1>
-        <p className="mt-4 text-muted max-w-md mx-auto">{error || "The tutor you're looking for doesn't exist."}</p>
-        <Link href="/tutors" className="btn-primary mt-8 inline-block">
+        <h1 className="text-5xl font-black text-rose-600 mb-4">Tutor Not Found</h1>
+        <p className="text-muted max-w-md mx-auto mb-8">
+          {error || "The tutor you're looking for doesn't exist or has been removed."}
+        </p>
+        <Link href="/tutors" className="btn-primary inline-block">
           Browse All Tutors
         </Link>
       </div>
@@ -131,7 +145,7 @@ export default function TutorDetail({ params }) {
           <img 
             src={tutor.photo} 
             alt={tutor.tutorName} 
-            className="w-full rounded-3xl shadow-xl" 
+            className="w-full rounded-3xl shadow-xl object-cover" 
           />
         </div>
 
