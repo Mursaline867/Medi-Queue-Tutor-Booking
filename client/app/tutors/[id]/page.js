@@ -12,6 +12,7 @@ export default function TutorDetail({ params }) {
   const [phone, setPhone] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
   const router = useRouter();
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -23,16 +24,20 @@ export default function TutorDetail({ params }) {
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors/${params.id}`);
+        const res = await fetch(`${apiBase}/api/tutors/${params.id}`);
         const data = await res.json();
-        
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Tutor not found');
+        }
+
         if (data.tutor) {
           setTutor(data.tutor);
         } else {
-          toast.error('Tutor not found');
+          throw new Error('Tutor not found');
         }
       } catch (error) {
-        toast.error('Failed to load tutor');
+        toast.error(error.message || 'Failed to load tutor');
       } finally {
         setLoading(false);
       }
@@ -65,7 +70,7 @@ export default function TutorDetail({ params }) {
     setBookingLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
+      const res = await fetch(`${apiBase}/api/bookings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,6 +81,7 @@ export default function TutorDetail({ params }) {
           bookedBy: user.id || localStorage.getItem('userId')
         }),
       });
+
 
       const data = await res.json();
 

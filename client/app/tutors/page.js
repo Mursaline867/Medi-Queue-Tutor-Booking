@@ -8,10 +8,11 @@ export default function TutorsPage() {
   const [tutors, setTutors] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
 
   const fetchTutors = async (query = '') => {
     setLoading(true);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tutors?search=${encodeURIComponent(query)}`);
+    const res = await fetch(`${apiBase}/api/tutors?search=${encodeURIComponent(query)}`);
     const data = await res.json();
     setTutors(data.tutors || []);
     setLoading(false);

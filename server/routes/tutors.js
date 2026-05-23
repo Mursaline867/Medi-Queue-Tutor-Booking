@@ -37,9 +37,12 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const tutor = await Tutor.findById(req.params.id);
+    if (!tutor) {
+      return res.status(404).json({ error: 'Tutor not found' });
+    }
     res.json({ tutor });
   } catch (err) {
-    res.status(404).json({ error: 'Tutor not found' });
+    res.status(400).json({ error: 'Invalid tutor ID' });
   }
 });
 
