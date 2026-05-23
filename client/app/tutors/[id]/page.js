@@ -7,18 +7,20 @@ import toast from 'react-hot-toast';
 export default function TutorDetail({ params }) {
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [studentName, setStudentName] = useState('');
   const [phone, setPhone] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
+
   const router = useRouter();
   const apiBase = process.env.NEXT_PUBLIC_API_URL || '';
-
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
     const fetchTutor = async () => {
       if (!params?.id) {
+        setError("Invalid Tutor ID");
         setLoading(false);
         return;
       }
@@ -31,13 +33,10 @@ export default function TutorDetail({ params }) {
           throw new Error(data.error || 'Tutor not found');
         }
 
-        if (data.tutor) {
-          setTutor(data.tutor);
-        } else {
-          throw new Error('Tutor not found');
-        }
-      } catch (error) {
-        toast.error(error.message || 'Failed to load tutor');
+        setTutor(data.tutor);
+      } catch (err) {
+        setError(err.message);
+        toast.error(err.message);
       } finally {
         setLoading(false);
       }
@@ -82,7 +81,6 @@ export default function TutorDetail({ params }) {
         }),
       });
 
-
       const data = await res.json();
 
       if (res.ok) {
@@ -99,19 +97,25 @@ export default function TutorDetail({ params }) {
     }
   };
 
+  // Loading State
   if (loading) {
     return (
       <div className="page-shell py-20 text-center">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+        <div className="animate-spin h-12 w-12 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+        <p className="mt-4 text-muted">Loading tutor details...</p>
       </div>
     );
   }
 
-  if (!tutor) {
+  // Error State
+  if (error || !tutor) {
     return (
       <div className="page-shell py-20 text-center">
-        <h1 className="text-4xl font-black">Tutor not found</h1>
-        <Link href="/tutors" className="btn-primary mt-6 inline-block">Browse Tutors</Link>
+        <h1 className="text-4xl font-black text-rose-600">Tutor Not Found</h1>
+        <p className="mt-4 text-muted max-w-md mx-auto">{error || "The tutor you're looking for doesn't exist."}</p>
+        <Link href="/tutors" className="btn-primary mt-8 inline-block">
+          Browse All Tutors
+        </Link>
       </div>
     );
   }
@@ -124,7 +128,11 @@ export default function TutorDetail({ params }) {
     <div className="page-shell section-pad max-w-4xl">
       <div className="grid md:grid-cols-2 gap-10">
         <div>
-          <img src={tutor.photo} alt={tutor.tutorName} className="w-full rounded-3xl shadow-xl" />
+          <img 
+            src={tutor.photo} 
+            alt={tutor.tutorName} 
+            className="w-full rounded-3xl shadow-xl" 
+          />
         </div>
 
         <div>
@@ -186,11 +194,6 @@ export default function TutorDetail({ params }) {
               <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl">
                 <p className="text-sm text-muted">Tutor</p>
                 <p className="font-semibold">{tutor.tutorName}</p>
-              </div>
-
-              <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-xl">
-                <p className="text-sm text-muted">Your Email</p>
-                <p className="font-semibold">{user.email || 'Not available'}</p>
               </div>
 
               <div className="flex gap-4 pt-4">
