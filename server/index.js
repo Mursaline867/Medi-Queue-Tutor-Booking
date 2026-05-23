@@ -17,7 +17,7 @@ app.use(express.json());
 mongoose.connect(process.env.MONGODB_URI)
   .then(async () => {
     console.log('✅ MongoDB Connected');
-    const initBetterAuth = require('./betterAuth');
+    const { initBetterAuth } = require('./betterAuth');
     await initBetterAuth(app);
   })
   .catch(err => console.log('MongoDB Error:', err));

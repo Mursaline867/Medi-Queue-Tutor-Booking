@@ -6,5 +6,10 @@ export const authClient = createAuthClient({
   baseURL,
   fetchOptions: {
     credentials: 'include',
+    auth: {
+      type: 'Bearer',
+      token: () => typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '',
+    }
   },
 });
+
