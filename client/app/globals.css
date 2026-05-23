@@ -113,7 +113,7 @@ body {
 .label {
   display: block;
   margin-bottom: 8px;
-  color: var(--text);
+  color: white;
   font-size: 0.9rem;
   font-weight: 600;
 }
