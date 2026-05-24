@@ -68,11 +68,15 @@ export default function TutorsPage() {
               <div className="p-6">
                 <div className="flex justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-black text-white">{tutor.tutorName}</h3>
+                    <h3 className="text-xl font-black" style={{ color: 'var(--text)' }}>
+                      {tutor.tutorName}
+                    </h3>
                     <p className="mt-1 font-semibold text-primary">{tutor.subject}</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-black text-white">BDT {tutor.hourlyFee}</div>
+                    <div className="text-2xl font-black" style={{ color: 'var(--text)' }}>
+                      BDT {tutor.hourlyFee}
+                    </div>
                     <div className="text-xs font-medium text-muted">per hour</div>
                   </div>
                 </div>
