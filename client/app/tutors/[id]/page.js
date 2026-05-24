@@ -20,11 +20,6 @@ export default function TutorDetail({ params }) {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
-    // if (!tutorId) {
-    //   setError("Invalid Tutor ID");
-    //   setLoading(false);
-    //   return;
-    // }
 
     const fetchTutor = async () => {
       try {
