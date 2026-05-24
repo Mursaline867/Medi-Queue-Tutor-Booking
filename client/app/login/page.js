@@ -75,12 +75,12 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
-            <label className="label">Email</label>
+            <label className="block mb-2 text-sm font-semibold text-foreground">Email</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field" required />
           </div>
 
           <div>
-            <label className="label">Password</label>
+            <label className="block mb-2 text-sm font-semibold text-foreground">Password</label>
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="field" required />
           </div>
 
