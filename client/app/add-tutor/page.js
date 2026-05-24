@@ -52,7 +52,7 @@ export default function AddTutor() {
         <h1 className="text-4xl font-black tracking-tight">Add New Tutor</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="panel p-8 space-y-6 bg-blue-950">
+      <form onSubmit={handleSubmit} className="panel p-8 space-y-6 !bg-blue-950">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="label">Tutor Name</label>
